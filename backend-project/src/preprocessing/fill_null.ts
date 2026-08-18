@@ -179,6 +179,22 @@ function createTitleFromContent(
     return title || null;
 }
 
+function handleMissingContent(
+    mention: NormalizedMention
+): boolean {
+    if (mention.content !== null) {
+        return true;
+    }
+
+    if (mention.url !== null) {
+        mention.content = `Visit to ${mention.url}`;
+        return true;
+    }
+
+    // Content dan URL sama-sama kosong
+    return false;
+}
+
 function createGoogleSearchUrl(
     title: string | null
 ): string | null {
@@ -265,6 +281,7 @@ function fillDefaultValues(
 export function enrichMentions(
     mentions: NormalizedMention[]
 ): NormalizedMention[] {
+
     const enriched = mentions.map(
         (mention) => ({
             ...mention,
@@ -274,7 +291,10 @@ export function enrichMentions(
     const averageEngagement =
         calculateAverageEngagement(enriched);
 
+    const result: NormalizedMention[] = [];
+
     for (const mention of enriched) {
+
         const externalMatch =
             findByExternalId(
                 mention,
@@ -295,6 +315,7 @@ export function enrichMentions(
             );
 
         if (hasMissingValue) {
+
             const urlMatch =
                 findByUrl(
                     mention,
@@ -316,6 +337,7 @@ export function enrichMentions(
             );
 
         if (stillMissingValue) {
+
             const contentMatch =
                 findByContent(
                     mention,
@@ -330,11 +352,22 @@ export function enrichMentions(
             }
         }
 
+        const keep =
+            handleMissingContent(
+                mention
+            );
+
+        if (!keep) {
+            continue;
+        }
+
         fillDefaultValues(
             mention,
             averageEngagement
         );
+
+        result.push(mention);
     }
 
-    return enriched;
+    return result;
 }
