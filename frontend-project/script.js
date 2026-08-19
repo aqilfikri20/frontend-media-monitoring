@@ -14,7 +14,7 @@ const pageNumbers =document.getElementById("page-numbers");
 
 let currentPage = 1;
 let totalPages = 1;
-const API_URL = "http://media-project.australiaeast.cloudapp.azure.com/api/";
+const API_URL = "http://media-project.australiaeast.cloudapp.azure.com/api";
 
 prevPage.addEventListener(
     "click",
